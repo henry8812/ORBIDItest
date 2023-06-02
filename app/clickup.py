@@ -18,7 +18,8 @@ def sync_contacts_to_clickup(contact_ids):
         contact_data = get_hubspot_contact(contact_id)
         if contact_data['properties'].get('firstname') is not None and contact_data['properties'].get('lastname') is not None:
             clickup_task_data = transform_contact_data_to_clickup_task(contact_data)
-            create_clickup_task(clickup_task_data)
+            if contact_data['properties'].get('estado_clickup') is not None:
+                create_clickup_task(clickup_task_data)
 
             print(clickup_task_data)
             # Save the API call to the database
@@ -55,10 +56,30 @@ def create_clickup_task(task_data):
     try:
         response.raise_for_status()
         result = response.json()
-        return result
+
+        # Agregar la propiedad estado_clickup a true en HubSpot para el usuario correspondiente
+        if 'task_id' in task_data:
+            contact_id = task_data['task_id']
+            hubspot_url = f"{HUBSPOT_API_BASE_URL}/crm/v3/objects/contacts/{contact_id}"
+            hubspot_headers = {
+                "Authorization": f"Bearer {HUBSPOT_ACCESS_TOKEN}",
+                "Content-Type": "application/json"
+            }
+            hubspot_payload = {
+                "properties": {
+                    "estado_clickup": True
+                }
+            }
+            hubspot_response = requests.patch(hubspot_url, headers=hubspot_headers, json=hubspot_payload)
+            hubspot_response.raise_for_status()
     except requests.exceptions.HTTPError as err:
         print(f"HTTP Error: {err}")
         return None
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+    return result
 
 
 def save_api_call_to_database(endpoint, params, result):
