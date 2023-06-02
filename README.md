@@ -38,6 +38,20 @@ cp .env.example .env
 
 6. Open the `.env` file and update the environment variables with your own HubSpot and ClickUp credentials.
 
+DB_HOST=########
+DB_PORT=5432
+DB_USER=#########
+DB_PASS=########
+DB_NAME=data_#########
+
+HUBSPOT_ACCESS_TOKEN=###-###-##########-####-####-####-###############
+CLICKUP_TOKEN=#######################################
+CLICKUP_LIST_ID=###############
+
+HUBSPOT_API_URL=https://api.hubspot.com
+CLICKUP_API_URL=https://api.clickup.com/api/v2
+
+
 7. Start the application:
 uvicorn main:app --reload
 
